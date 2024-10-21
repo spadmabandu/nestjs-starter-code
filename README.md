@@ -26,15 +26,18 @@ This repository can be used as TypeScript starter code for a [NestJS](https://gi
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/username/project-name.git
-   cd project-name
+   git clone https://github.com/spadmabandu/nestjs-starter-code.git
+   ```
+
+   ```bash
+   cd your-project-name
    ```
 
 2. **Install dependencies**:
 
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
 3. **Create a database**:
    Create a database and obtain the connection details (host, port, name, username, and password). These will later be populated as environment variables.
@@ -50,19 +53,19 @@ npm install
 
 1. Development
 
-```bash
-npm run start:dev
-```
+   ```bash
+   npm run start:dev
+   ```
 
 2. Production
 
-```bash
-npm run build
-```
+   ```bash
+   npm run build
+   ```
 
-```bash
-npm run start
-```
+   ```bash
+   npm run start
+   ```
 
 ## Testing
 
@@ -70,15 +73,15 @@ Unit tests for all Services and Controllers in the User and Auth modules are pro
 
 1. Run unit tests
 
-```bash
-npm run test
-```
+   ```bash
+   npm run test
+   ```
 
 2. Run End-to-End (E2E) tests
 
-```bash
-npm run test:e2e
-```
+   ```bash
+   npm run test:e2e
+   ```
 
 ## Usage
 
@@ -168,11 +171,12 @@ Backend:
 - TypeORM
 - PostgreSQL
 - REST
-- Passport (auth using JWT)
+- Passport (authentication)
 
 Testing:
 
-- Jest (unit testing)
+- Jest (unit and E2E testing)
+- Supertest (HTTP requests)
 
 ## License
 
