@@ -5,4 +5,4 @@ import { Platform } from './platform.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Platform])],
 })
-export class PlatformModule {}
+export class PlatformsModule {}

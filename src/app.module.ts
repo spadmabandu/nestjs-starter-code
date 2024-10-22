@@ -11,7 +11,8 @@ import { validate } from '../config/config.validation';
 import { JwtTokenModule } from './jwt-token/jwt-token.module';
 import { VideoGamesModule } from './video-games/video-games.module';
 import { GenresModule } from './genres/genres.module';
-import { PlatformModule } from './platforms/platforms.module';
+import { PlatformsModule } from './platforms/platforms.module';
+import { RatingsModule } from './ratings/ratings.module';
 
 @Module({
   imports: [
@@ -46,7 +47,8 @@ import { PlatformModule } from './platforms/platforms.module';
     AuthModule,
     GenresModule,
     JwtTokenModule,
-    PlatformModule,
+    PlatformsModule,
+    RatingsModule,
     UsersModule,
     VideoGamesModule,
   ],
