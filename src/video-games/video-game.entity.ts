@@ -67,7 +67,7 @@ export class VideoGame {
 
   @Column({
     nullable: true,
-    comment: `Unique ID of video game from Giant Bomb API`,
+    comment: `Unique ID of video game from external data source`,
   })
   externalId?: number;
 
@@ -81,7 +81,7 @@ export class VideoGame {
     nullable: true,
     type: 'enum',
     enum: ExternalSourceEnum,
-    comment: `Source of the video game data, if external`,
+    comment: `Data source, if external`,
   })
   externalSource?: ExternalSourceEnum;
 
