@@ -13,6 +13,7 @@ import { VideoGamesModule } from './video-games/video-games.module';
 import { GenresModule } from './genres/genres.module';
 import { PlatformsModule } from './platforms/platforms.module';
 import { RatingsModule } from './ratings/ratings.module';
+import { RatingBoardsModule } from './rating-boards/rating-boards.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { RatingsModule } from './ratings/ratings.module';
     GenresModule,
     JwtTokenModule,
     PlatformsModule,
+    RatingBoardsModule,
     RatingsModule,
     UsersModule,
     VideoGamesModule,
