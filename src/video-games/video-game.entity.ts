@@ -93,11 +93,11 @@ export class VideoGame {
 
   // Many to Many relationship with List Entity (Favorite, Wish List, Want to Play, Playing, Played, Custom List)
 
-  // Many to Many relationship with Platforms entity
+  // Many to Many relationship with Genre entity
 
-  // One to Many relationship with Ratings Entity
+  // Many to Many relationship with Platforms entity
 
   // Many to Many relationship with Company Entity
 
-  // Many to Many relationship with Genre entity
+  // One to Many relationship with Ratings Entity
 }

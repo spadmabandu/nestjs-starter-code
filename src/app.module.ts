@@ -10,6 +10,8 @@ import { IDatabaseConfig } from 'config/types';
 import { validate } from '../config/config.validation';
 import { JwtTokenModule } from './jwt-token/jwt-token.module';
 import { VideoGamesModule } from './video-games/video-games.module';
+import { GenresModule } from './genres/genres.module';
+import { PlatformModule } from './platforms/platforms.module';
 
 @Module({
   imports: [
@@ -42,7 +44,9 @@ import { VideoGamesModule } from './video-games/video-games.module';
       },
     }),
     AuthModule,
+    GenresModule,
     JwtTokenModule,
+    PlatformModule,
     UsersModule,
     VideoGamesModule,
   ],
