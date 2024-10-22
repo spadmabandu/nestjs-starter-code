@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { IDatabaseConfig } from 'config/types';
 import { validate } from '../config/config.validation';
 import { JwtTokenModule } from './jwt-token/jwt-token.module';
+import { VideoGamesModule } from './video-games/video-games.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { JwtTokenModule } from './jwt-token/jwt-token.module';
     AuthModule,
     JwtTokenModule,
     UsersModule,
+    VideoGamesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
