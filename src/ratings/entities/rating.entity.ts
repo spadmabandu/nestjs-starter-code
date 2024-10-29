@@ -1,8 +1,10 @@
-import { ExternalSourceEnum } from 'src/video-games/types';
+import { RatingBoard } from 'src/rating-boards/entities/rating-board.entity';
+import { ExternalSourceEnum } from 'src/shared/types/types';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -13,7 +15,7 @@ export class Rating {
   id: number;
 
   @Column()
-  title: string;
+  name: string;
 
   @Column({
     comment: `Main image associated with the genre`,
@@ -47,7 +49,8 @@ export class Rating {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // Many to Many relationship with Game Entity
+  @ManyToOne(() => RatingBoard, (ratingBoard) => ratingBoard.ratings)
+  ratingBoard: RatingBoard;
 
-  // Many to One relationship with Rating Board Entity
+  // Many to Many relationship with Game Entity
 }

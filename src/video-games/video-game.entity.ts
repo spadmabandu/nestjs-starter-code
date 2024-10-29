@@ -1,3 +1,4 @@
+import { ExternalSourceEnum } from 'src/shared/types/types';
 import {
   Column,
   CreateDateColumn,
@@ -5,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ExternalSourceEnum } from './types';
 
 @Entity()
 export class VideoGame {

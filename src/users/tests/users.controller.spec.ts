@@ -4,7 +4,7 @@ import { UsersService } from '../users.service';
 import { mockUser } from './mock-data';
 import { NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { User } from '../user.entity';
+import { User } from '../entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { mockAuthToken } from 'src/auth/tests/mock-data';
 

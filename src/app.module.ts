@@ -12,8 +12,8 @@ import { JwtTokenModule } from './jwt-token/jwt-token.module';
 import { VideoGamesModule } from './video-games/video-games.module';
 import { GenresModule } from './genres/genres.module';
 import { PlatformsModule } from './platforms/platforms.module';
-import { RatingsModule } from './ratings/ratings.module';
 import { RatingBoardsModule } from './rating-boards/rating-boards.module';
+import { RatingsModule } from './ratings/ratings.module';
 
 @Module({
   imports: [

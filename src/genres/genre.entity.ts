@@ -1,4 +1,4 @@
-import { ExternalSourceEnum } from 'src/video-games/types';
+import { ExternalSourceEnum } from 'src/shared/types/types';
 import {
   Column,
   CreateDateColumn,

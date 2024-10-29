@@ -1,8 +1,10 @@
-import { ExternalSourceEnum } from 'src/video-games/types';
+import { Rating } from 'src/ratings/entities/rating.entity';
+import { ExternalSourceEnum } from 'src/shared/types/types';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,8 +14,8 @@ export class RatingBoard {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  title: string;
+  @Column({ unique: true })
+  name: string;
 
   @Column({ type: 'text', nullable: true })
   description?: string;
@@ -47,13 +49,16 @@ export class RatingBoard {
   })
   externalSource?: ExternalSourceEnum;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt: Date;
 
-  // Many to Many relationship with Game Entity
-
-  // One to Many relationship with Rating Entity
+  @OneToMany(() => Rating, (rating) => rating.ratingBoard, {
+    onDelete: 'CASCADE',
+    cascade: true,
+    nullable: true,
+  })
+  ratings?: Rating[];
 }
