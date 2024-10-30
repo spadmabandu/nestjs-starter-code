@@ -40,7 +40,35 @@ export class RatingBoardsService {
     }
   }
 
-  // TODO createMany()
+  async createMany(
+    createManyRatingBoardInputs: CreateRatingBoardInput[],
+  ): Promise<RatingBoard[]> {
+    const existingRatingBoards = await this.ratingBoardRepository.find({
+      select: ['name'],
+    });
+    const existingRatingBoardsSet = new Set(
+      existingRatingBoards.map((ratingBoard) => ratingBoard.name),
+    );
+
+    const newRatingBoards = createManyRatingBoardInputs.filter(
+      (input) => !existingRatingBoardsSet.has(input.name),
+    );
+    if (newRatingBoards.length === 0) {
+      return [];
+    }
+
+    const ratingBoards = newRatingBoards.map((input) =>
+      this.ratingBoardRepository.create(input),
+    );
+
+    try {
+      return this.ratingBoardRepository.save(ratingBoards);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error bulk creating Rating Boards`,
+      );
+    }
+  }
 
   findAll() {
     return this.ratingBoardRepository.find();
