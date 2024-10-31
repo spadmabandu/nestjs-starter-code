@@ -3,9 +3,10 @@ import { DataPopulationController } from './data-population.controller';
 import { DataPopulationService } from './data-population.service';
 import { HttpModule } from '@nestjs/axios';
 import { RatingBoardsModule } from 'src/rating-boards/rating-boards.module';
+import { RatingsModule } from 'src/ratings/ratings.module';
 
 @Module({
-  imports: [HttpModule, RatingBoardsModule],
+  imports: [HttpModule, RatingBoardsModule, RatingsModule],
   controllers: [DataPopulationController],
   providers: [DataPopulationService],
 })

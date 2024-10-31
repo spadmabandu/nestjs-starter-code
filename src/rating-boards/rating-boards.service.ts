@@ -41,8 +41,9 @@ export class RatingBoardsService {
   }
 
   async createMany(
-    createManyRatingBoardInputs: CreateRatingBoardInput[],
+    createManyRatingBoardsInput: CreateRatingBoardInput[],
   ): Promise<RatingBoard[]> {
+    // De-duplicate rating boards that already exist in the database
     const existingRatingBoards = await this.ratingBoardRepository.find({
       select: ['name'],
     });
@@ -50,7 +51,7 @@ export class RatingBoardsService {
       existingRatingBoards.map((ratingBoard) => ratingBoard.name),
     );
 
-    const newRatingBoards = createManyRatingBoardInputs.filter(
+    const newRatingBoards = createManyRatingBoardsInput.filter(
       (input) => !existingRatingBoardsSet.has(input.name),
     );
     if (newRatingBoards.length === 0) {

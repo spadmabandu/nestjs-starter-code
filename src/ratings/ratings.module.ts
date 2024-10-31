@@ -9,5 +9,6 @@ import { RatingBoardsModule } from 'src/rating-boards/rating-boards.module';
   imports: [TypeOrmModule.forFeature([Rating]), RatingBoardsModule],
   controllers: [RatingsController],
   providers: [RatingsService],
+  exports: [RatingsService],
 })
 export class RatingsModule {}

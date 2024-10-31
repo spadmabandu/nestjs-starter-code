@@ -9,4 +9,9 @@ export class DataPopulationController {
   populateRatingBoards() {
     return this.dataPopulationService.populateRatingBoards();
   }
+
+  @Post('ratings')
+  populateRatings() {
+    return this.dataPopulationService.populateRatings();
+  }
 }

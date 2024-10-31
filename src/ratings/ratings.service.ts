@@ -30,13 +30,43 @@ export class RatingsService {
     const rating = this.ratingRepository.create({ ...newRating, ratingBoard });
 
     try {
-      return await this.ratingRepository.save(rating);
+      return this.ratingRepository.save(rating);
     } catch (_) {
       throw new InternalServerErrorException('Failed to create Rating');
     }
   }
 
-  // TODO createMany()
+  async createMany(
+    createManyRatingsInput: CreateRatingInput[],
+  ): Promise<Rating[]> {
+    // De-duplicate ratings that already exist in the database
+    const existingRatings = await this.ratingRepository.find({
+      select: ['name'],
+    });
+    const existingRatingsSet = new Set(
+      existingRatings.map((rating) => rating.name),
+    );
+
+    const newRatings = createManyRatingsInput.filter(
+      (rating) => !existingRatingsSet.has(rating.name),
+    );
+
+    const ratings = newRatings.map((createRatingInput) => {
+      const { ratingBoardId, ...newRating } = createRatingInput;
+
+      const rating = this.ratingRepository.create({
+        ...newRating,
+        ratingBoard: { id: ratingBoardId },
+      });
+      return rating;
+    });
+
+    try {
+      return this.ratingRepository.save(ratings);
+    } catch (error) {
+      throw new InternalServerErrorException(`Error bulk creating ratings`);
+    }
+  }
 
   findAll(): Promise<Rating[]> {
     return this.ratingRepository.find();
