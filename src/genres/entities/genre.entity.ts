@@ -12,14 +12,14 @@ export class Genre {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  title: string;
+  @Column({ unique: true })
+  name: string;
 
-  @Column({ type: 'text' })
-  description: string;
+  @Column({ type: 'text', nullable: true })
+  description?: string;
 
-  @Column()
-  summary: string;
+  @Column({ nullable: true })
+  summary?: string;
 
   @Column({
     comment: `Main image associated with the genre`,
@@ -47,10 +47,10 @@ export class Genre {
   })
   externalSource?: ExternalSourceEnum;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt: Date;
 
   // Many to Many relationship with Game Entity

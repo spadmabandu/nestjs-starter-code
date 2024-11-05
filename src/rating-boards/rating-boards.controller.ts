@@ -36,9 +36,9 @@ export class RatingBoardsController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateRatingBoardDto: UpdateRatingBoardInput,
+    @Body() updateRatingBoardInput: UpdateRatingBoardInput,
   ): Promise<RatingBoard> {
-    return this.ratingBoardsService.update(+id, updateRatingBoardDto);
+    return this.ratingBoardsService.update(+id, updateRatingBoardInput);
   }
 
   @Delete(':id')

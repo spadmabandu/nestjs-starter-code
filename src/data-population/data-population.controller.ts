@@ -14,4 +14,9 @@ export class DataPopulationController {
   populateRatings() {
     return this.dataPopulationService.populateRatings();
   }
+
+  @Post('genres')
+  populateGenres() {
+    return this.dataPopulationService.populateGenres();
+  }
 }

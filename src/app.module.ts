@@ -10,11 +10,11 @@ import { IDatabaseConfig } from 'config/types';
 import { validate } from '../config/config.validation';
 import { JwtTokenModule } from './jwt-token/jwt-token.module';
 import { VideoGamesModule } from './video-games/video-games.module';
-import { GenresModule } from './genres/genres.module';
 import { PlatformsModule } from './platforms/platforms.module';
 import { RatingBoardsModule } from './rating-boards/rating-boards.module';
 import { RatingsModule } from './ratings/ratings.module';
 import { DataPopulationModule } from './data-population/data.population.module';
+import { GenresModule } from './genres/genres.module';
 
 @Module({
   imports: [
