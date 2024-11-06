@@ -7,7 +7,7 @@ import { CreateRatingInput } from './dto/create-rating.input';
 import { UpdateRatingInput } from './dto/update-rating.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Rating } from './entities/rating.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { RatingBoardsService } from 'src/rating-boards/rating-boards.service';
 
 @Injectable()
@@ -16,6 +16,7 @@ export class RatingsService {
     @InjectRepository(Rating)
     private ratingRepository: Repository<Rating>,
     private ratingBoardsService: RatingBoardsService,
+    private dataSource: DataSource,
   ) {}
 
   async create(createRatingInput: CreateRatingInput): Promise<Rating> {
@@ -51,20 +52,32 @@ export class RatingsService {
       (rating) => !existingRatingsSet.has(rating.name),
     );
 
-    const ratings = newRatings.map((createRatingInput) => {
-      const { ratingBoardId, ...newRating } = createRatingInput;
-
-      const rating = this.ratingRepository.create({
-        ...newRating,
-        ratingBoard: { id: ratingBoardId },
-      });
-      return rating;
-    });
+    // Wrap operations in a database transaction
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
     try {
-      return this.ratingRepository.save(ratings);
+      const ratings = newRatings.map((createRatingInput) => {
+        const { ratingBoardId, ...newRating } = createRatingInput;
+
+        const rating = this.ratingRepository.create({
+          ...newRating,
+          ratingBoard: { id: ratingBoardId },
+        });
+        return rating;
+      });
+      const savedRatings = await queryRunner.manager.save(ratings);
+
+      // Commit all operations to database in a single transaction
+      await queryRunner.commitTransaction();
+
+      return savedRatings;
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(`Error bulk creating ratings`);
+    } finally {
+      await queryRunner.release();
     }
   }
 

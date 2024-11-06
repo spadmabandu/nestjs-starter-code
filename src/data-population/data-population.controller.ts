@@ -19,4 +19,9 @@ export class DataPopulationController {
   populateGenres() {
     return this.dataPopulationService.populateGenres();
   }
+
+  @Post('companies')
+  populateCompanies() {
+    return this.dataPopulationService.populateCompanies();
+  }
 }

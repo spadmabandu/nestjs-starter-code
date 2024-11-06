@@ -15,6 +15,7 @@ import { RatingBoardsModule } from './rating-boards/rating-boards.module';
 import { RatingsModule } from './ratings/ratings.module';
 import { DataPopulationModule } from './data-population/data.population.module';
 import { GenresModule } from './genres/genres.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { GenresModule } from './genres/genres.module';
       },
     }),
     AuthModule,
+    CompaniesModule,
     DataPopulationModule,
     GenresModule,
     JwtTokenModule,

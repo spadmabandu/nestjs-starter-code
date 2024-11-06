@@ -8,13 +8,14 @@ import { CreateRatingBoardInput } from './dto/create-rating-board.input';
 import { UpdateRatingBoardInput } from './dto/update-rating-board.input';
 import { RatingBoard } from './entities/rating-board.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class RatingBoardsService {
   constructor(
     @InjectRepository(RatingBoard)
     private ratingBoardRepository: Repository<RatingBoard>,
+    private dataSource: DataSource,
   ) {}
 
   async create(
@@ -58,28 +59,40 @@ export class RatingBoardsService {
       return [];
     }
 
-    const ratingBoards = newRatingBoards.map((input) =>
-      this.ratingBoardRepository.create(input),
-    );
+    // Wrap operations in a database transaction
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
     try {
-      return this.ratingBoardRepository.save(ratingBoards);
+      const ratingBoards = newRatingBoards.map((input) =>
+        this.ratingBoardRepository.create(input),
+      );
+      const savedRatingBoards = await queryRunner.manager.save(ratingBoards);
+
+      // Commit all operations in a single transaction
+      await queryRunner.commitTransaction();
+
+      return savedRatingBoards;
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(
         `Error bulk creating Rating Boards`,
       );
+    } finally {
+      await queryRunner.release();
     }
   }
 
-  findAll() {
+  findAll(): Promise<RatingBoard[]> {
     return this.ratingBoardRepository.find();
   }
 
-  async findOneById(id: number): Promise<RatingBoard | null> {
+  findOneById(id: number): Promise<RatingBoard | null> {
     return this.ratingBoardRepository.findOneBy({ id });
   }
 
-  async findOneByName(name: string): Promise<RatingBoard | null> {
+  findOneByName(name: string): Promise<RatingBoard | null> {
     return this.ratingBoardRepository.findOneBy({ name });
   }
 

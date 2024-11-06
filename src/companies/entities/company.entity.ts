@@ -13,22 +13,22 @@ export class Company {
   id: number;
 
   @Column()
-  title: string;
+  name: string;
 
-  @Column({ type: 'text' })
-  description: string;
+  @Column({ type: 'text', nullable: true })
+  description?: string;
 
-  @Column()
-  summary: string;
+  @Column({ nullable: true })
+  summary?: string;
 
-  @Column({ comment: `Common abbreviation for the company` })
-  abbreviation: string;
+  @Column({ comment: `Common abbreviation for the company`, nullable: true })
+  abbreviation?: string;
 
-  @Column()
-  dateFounded: Date;
+  @Column({ nullable: true })
+  dateFounded?: Date;
 
-  @Column()
-  website: string;
+  @Column({ nullable: true })
+  website?: string;
 
   @Column('text', {
     array: true,
@@ -63,10 +63,30 @@ export class Company {
   })
   externalSource?: ExternalSourceEnum;
 
-  @CreateDateColumn()
+  @Column({
+    nullable: true,
+  })
+  streetAddress?: string;
+
+  @Column({
+    nullable: true,
+  })
+  city?: string;
+
+  @Column({
+    nullable: true,
+  })
+  state?: string;
+
+  @Column({
+    nullable: true,
+  })
+  country?: string;
+
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt: Date;
 
   // Many to Many relationship with Game Entity

@@ -1,23 +1,28 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AxiosResponse } from 'axios';
 import { GIANT_BOMB_API_BASE_URL } from 'config/constants';
-import { catchError, lastValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
+import { CompaniesService } from 'src/companies/companies.service';
+import { CreateCompanyInput } from 'src/companies/dto/create-company.input';
 import { CreateGenreInput } from 'src/genres/dto/create-genre.input';
 import { GenresService } from 'src/genres/genres.service';
 import { CreateRatingBoardInput } from 'src/rating-boards/dto/create-rating-board.input';
 import { RatingBoard } from 'src/rating-boards/entities/rating-board.entity';
 import { RatingBoardsService } from 'src/rating-boards/rating-boards.service';
 import { CreateRatingInput } from 'src/ratings/dto/create-rating.input';
-import { Rating } from 'src/ratings/entities/rating.entity';
 import { RatingsService } from 'src/ratings/ratings.service';
 import { ExternalSourceEnum } from 'src/shared/types/types';
 
 @Injectable()
 export class DataPopulationService {
+  private readonly BATCH_SIZE = 100;
+  private readonly DELAY_BETWEEN_REQUESTS_MS = 2 * 60 * 1000; // 2 minute delay
+
   constructor(
     private readonly httpService: HttpService,
+    private readonly companiesService: CompaniesService,
     private readonly configService: ConfigService,
     private readonly genresService: GenresService,
     private readonly ratingBoardsService: RatingBoardsService,
@@ -26,11 +31,16 @@ export class DataPopulationService {
 
   async populateRatingBoards(): Promise<RatingBoard[]> {
     const apiKey = this.configService.get<string>('GIANT_BOMB_API_KEY');
-    const url = `${GIANT_BOMB_API_BASE_URL}/rating_boards/?api_key=${apiKey}&format=json`;
+    const url = `${GIANT_BOMB_API_BASE_URL}/rating_boards`;
 
     try {
       const response: AxiosResponse = await lastValueFrom(
-        this.httpService.get(url),
+        this.httpService.get(url, {
+          params: {
+            api_key: apiKey,
+            format: 'json',
+          },
+        }),
       );
       const createManyRatingBoardsInput: CreateRatingBoardInput[] =
         response.data.results.map((ratingBoard: any) => {
@@ -74,12 +84,17 @@ export class DataPopulationService {
     });
 
     const apiKey = this.configService.get<string>('GIANT_BOMB_API_KEY');
-    const url = `${GIANT_BOMB_API_BASE_URL}/game_ratings?format=json&api_key=${apiKey}`;
+    const url = `${GIANT_BOMB_API_BASE_URL}/game_ratings`;
 
     try {
       // Fetch rating data from Giant Bomb API
       const response: AxiosResponse = await lastValueFrom(
-        this.httpService.get(url),
+        this.httpService.get(url, {
+          params: {
+            api_key: apiKey,
+            format: 'json',
+          },
+        }),
       );
 
       // Transform API response into createMany input format
@@ -122,12 +137,17 @@ export class DataPopulationService {
 
   async populateGenres() {
     const apiKey = this.configService.get<string>('GIANT_BOMB_API_KEY');
-    const url = `${GIANT_BOMB_API_BASE_URL}/genres?format=json&api_key=${apiKey}`;
+    const url = `${GIANT_BOMB_API_BASE_URL}/genres`;
 
     // Fetch genres data from Giant Bomb API
     try {
       const response: AxiosResponse = await lastValueFrom(
-        this.httpService.get(url),
+        this.httpService.get(url, {
+          params: {
+            api_key: apiKey,
+            format: 'json',
+          },
+        }),
       );
 
       // Transform API response into createMany input format
@@ -157,5 +177,136 @@ export class DataPopulationService {
     } catch (e) {
       throw new Error(e);
     }
+  }
+
+  async populateCompanies() {
+    const apiKey = this.configService.get<string>('GIANT_BOMB_API_KEY');
+    const url = `${GIANT_BOMB_API_BASE_URL}/companies`;
+
+    let totalToFetch: number = 0;
+    let totalFetched: number = 0;
+    let page: number = 1;
+
+    while (totalFetched === 0 || totalFetched < totalToFetch) {
+      try {
+        const response: AxiosResponse = await this.fetchDataWithRetries(url, {
+          api_key: apiKey,
+          format: 'json',
+          offset: (page - 1) * this.BATCH_SIZE,
+          limit: this.BATCH_SIZE,
+        });
+
+        const { number_of_page_results, number_of_total_results, results } =
+          response.data;
+
+        // Update number of results fetched
+        totalFetched += number_of_page_results;
+        totalToFetch = number_of_total_results;
+        page += 1;
+
+        // Transform API response into createMany input format
+        const createManyCompaniesInput: CreateCompanyInput[] = results.map(
+          (company: any) => {
+            const {
+              id,
+              guid,
+              name,
+              website = null,
+              date_founded = null,
+              location_address = null,
+              location_city = null,
+              location_country = null,
+              location_state = null,
+              image: { original_url = null } = {},
+              abbreviation = null,
+              aliases = null,
+              deck = null,
+              description = null,
+            } = company;
+
+            // Separate aliases from Giant Bomb API into string array
+            const aliasesArray: string[] = aliases
+              ? aliases.split(/\r?\n/)
+              : null;
+
+            const createCompanyInput: CreateCompanyInput = {
+              name,
+              description,
+              summary: deck,
+              mainImage: original_url,
+              externalId: id,
+              guid,
+              externalSource: ExternalSourceEnum.GIANT_BOMB,
+              website,
+              dateFounded: date_founded,
+              abbreviation,
+              aliases: aliasesArray,
+              streetAddress: location_address,
+              city: location_city,
+              state: location_state,
+              country: location_country,
+            };
+
+            return createCompanyInput;
+          },
+        );
+
+        await this.companiesService.createMany(createManyCompaniesInput);
+
+        console.log(
+          `Processed page ${page - 1} of companies. Total fetched: ${totalFetched}`,
+        );
+
+        // Inject delay to avoid hitting API rate limits
+        await this.delay(this.DELAY_BETWEEN_REQUESTS_MS);
+      } catch (e) {
+        console.error(
+          `Error fetching page ${page}. Processed ${totalFetched} of ${totalToFetch} companies`,
+          e,
+        );
+        throw new Error(e);
+      }
+    }
+
+    return `Retrieved and processed ${totalFetched} of ${totalToFetch} companies`;
+  }
+
+  /**
+   * Helper function to artifically create a delay to avoid hitting 3rd party API rate limits
+   * @param ms delay time in milliseconds
+   */
+  private async delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Function to fetch data from an external API with retries, so 1 failure does
+   * not terminate the entire operation.
+   * @param {string} url
+   * @param {object} params
+   * @param {number} retries
+   * @returns {Promise<AxiosResponse<any, any>>}
+   */
+  async fetchDataWithRetries(
+    url: string,
+    params: object,
+    retries: number = 3,
+  ): Promise<AxiosResponse<any, any>> {
+    while (retries > 0) {
+      try {
+        return await lastValueFrom(this.httpService.get(url, { params }));
+      } catch (error) {
+        retries -= 1;
+        if (retries === 0) {
+          throw new Error(
+            `Failed to fetch data after ${retries} retries. Error: ${error.message}`,
+          );
+        }
+        await this.delay(this.DELAY_BETWEEN_REQUESTS_MS);
+      }
+    }
+
+    // To fix Typescript error. This line will never be reached, since this function will either return or throw an error before this.
+    throw new Error(`Failed to fetch data`);
   }
 }
