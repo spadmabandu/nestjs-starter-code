@@ -31,7 +31,7 @@ export class RatingsService {
     const rating = this.ratingRepository.create({ ...newRating, ratingBoard });
 
     try {
-      return this.ratingRepository.save(rating);
+      return await this.ratingRepository.save(rating);
     } catch (_) {
       throw new InternalServerErrorException('Failed to create Rating');
     }

@@ -1,8 +1,10 @@
+import { Platform } from 'src/platforms/entities/platform.entity';
 import { ExternalSourceEnum } from 'src/shared/types/types';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -91,5 +93,10 @@ export class Company {
 
   // Many to Many relationship with Game Entity
 
-  // Many to Many relationship with Platform Entity
+  @OneToMany(() => Platform, (platform) => platform.company, {
+    nullable: true,
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
+  platforms?: Platform[];
 }

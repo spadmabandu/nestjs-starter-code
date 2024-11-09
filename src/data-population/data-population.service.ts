@@ -8,12 +8,15 @@ import { CompaniesService } from 'src/companies/companies.service';
 import { CreateCompanyInput } from 'src/companies/dto/create-company.input';
 import { CreateGenreInput } from 'src/genres/dto/create-genre.input';
 import { GenresService } from 'src/genres/genres.service';
+import { CreatePlatformInput } from 'src/platforms/dto/create-platform.input';
+import { PlatformsService } from 'src/platforms/platforms.service';
 import { CreateRatingBoardInput } from 'src/rating-boards/dto/create-rating-board.input';
 import { RatingBoard } from 'src/rating-boards/entities/rating-board.entity';
 import { RatingBoardsService } from 'src/rating-boards/rating-boards.service';
 import { CreateRatingInput } from 'src/ratings/dto/create-rating.input';
 import { RatingsService } from 'src/ratings/ratings.service';
 import { ExternalSourceEnum } from 'src/shared/types/types';
+import { Not } from 'typeorm';
 
 @Injectable()
 export class DataPopulationService {
@@ -25,6 +28,7 @@ export class DataPopulationService {
     private readonly companiesService: CompaniesService,
     private readonly configService: ConfigService,
     private readonly genresService: GenresService,
+    private readonly platformsService: PlatformsService,
     private readonly ratingBoardsService: RatingBoardsService,
     private readonly ratingsService: RatingsService,
   ) {}
@@ -76,7 +80,7 @@ export class DataPopulationService {
     const ratingBoards = await this.ratingBoardsService.findAll();
     const ratingBoardMap = new Map<number, number>();
 
-    // Create a hash map of the rating board's external id to its database id
+    // Create a hash map of the rating board's external id to its internal database id
     ratingBoards.forEach((ratingBoard) => {
       if (ratingBoard.externalId) {
         ratingBoardMap.set(ratingBoard.externalId, ratingBoard.id);
@@ -179,7 +183,7 @@ export class DataPopulationService {
     }
   }
 
-  async populateCompanies() {
+  async populateCompanies(): Promise<string> {
     const apiKey = this.configService.get<string>('GIANT_BOMB_API_KEY');
     const url = `${GIANT_BOMB_API_BASE_URL}/companies`;
 
@@ -261,7 +265,7 @@ export class DataPopulationService {
         await this.delay(this.DELAY_BETWEEN_REQUESTS_MS);
       } catch (e) {
         console.error(
-          `Error fetching page ${page}. Processed ${totalFetched} of ${totalToFetch} companies`,
+          `Error fetching page ${page}. Processed ${totalFetched} of ${totalToFetch} companies.`,
           e,
         );
         throw new Error(e);
@@ -269,6 +273,128 @@ export class DataPopulationService {
     }
 
     return `Retrieved and processed ${totalFetched} of ${totalToFetch} companies`;
+  }
+
+  async populatePlatforms(): Promise<string> {
+    // Fetch companies to associate with each platform
+    const companies = await this.companiesService.findFieldsBy(
+      ['id', 'externalId'],
+      { externalSource: ExternalSourceEnum.GIANT_BOMB },
+    );
+
+    const companyMap = new Map<number, number>();
+
+    // Create a map of the company's external id to its internal database id
+    companies.forEach((company) => {
+      if (company.externalId) {
+        companyMap.set(company.externalId, company.id);
+      }
+    });
+
+    const apiKey = this.configService.get<string>('GIANT_BOMB_API_KEY');
+    const url = `${GIANT_BOMB_API_BASE_URL}/platforms`;
+
+    let totalToFetch: number = 0;
+    let totalFetched: number = 0;
+    let totalSaved: number = 0;
+    let page: number = 1;
+
+    while (totalFetched === 0 || totalFetched < totalToFetch) {
+      try {
+        // Fetch platform data from Giant Bomb API
+        const response: AxiosResponse = await this.fetchDataWithRetries(url, {
+          api_key: apiKey,
+          format: 'json',
+          offset: (page - 1) * this.BATCH_SIZE,
+          limit: this.BATCH_SIZE,
+        });
+
+        const { number_of_page_results, number_of_total_results, results } =
+          response.data;
+
+        // Update number of results fetched
+        totalFetched += number_of_page_results;
+        totalToFetch = number_of_total_results;
+        page += 1;
+
+        // Transform API response into createMany input format
+        const createManyPlatformsInput: CreatePlatformInput[] = results
+          .map((platform: any) => {
+            const {
+              id,
+              guid,
+              name,
+              aliases = null,
+              abbreviation = null,
+              deck = null,
+              description = null,
+              image: { original_url = null } = {},
+              release_date = null,
+              company = {},
+            } = platform || {};
+
+            const external_company_id = company?.id ?? null;
+
+            if (!external_company_id) {
+              return undefined;
+            }
+
+            // Map Company external id to its internal database id
+            const internalCompanyId = companyMap.get(external_company_id);
+
+            // TODO - for now, skip creating a Platform if the associated company
+            // does not exist in the internal database.
+            // Come back later to throw an error instead, after all companies have been populated in the internal database.
+            if (!internalCompanyId) {
+              return undefined;
+            }
+
+            // Separate aliases from API into string array
+            const aliasesArray: string[] = aliases
+              ? aliases.split(/\r?\n/)
+              : null;
+
+            const createPlatformInput: CreatePlatformInput = {
+              name,
+              description,
+              summary: deck,
+              mainImage: original_url,
+              externalId: id,
+              guid,
+              externalSource: ExternalSourceEnum.GIANT_BOMB,
+              releaseDate: release_date,
+              abbreviation,
+              aliases: aliasesArray,
+              companyId: internalCompanyId,
+            };
+
+            return createPlatformInput;
+          })
+          .filter(
+            (input: CreateCompanyInput | undefined) => input !== undefined,
+          );
+
+        await this.platformsService.createMany(createManyPlatformsInput);
+
+        // Update the count of platforms actually saved (not skipped)
+        totalSaved += createManyPlatformsInput.length;
+
+        console.log(
+          `Processed page ${page - 1} of platforms. Total fetched: ${totalFetched}. Total saved: ${totalSaved}.`,
+        );
+
+        // Inject delay to avoid hitting API rate limits
+        await this.delay(this.DELAY_BETWEEN_REQUESTS_MS);
+      } catch (error) {
+        console.error(
+          `Error fetching page ${page}. Fetched ${totalFetched} of ${totalToFetch} platforms. Total saved: ${totalSaved}.`,
+          error,
+        );
+        throw new Error(error);
+      }
+    }
+
+    return `Retrieved and processed ${totalFetched} of ${totalToFetch} platforms. Total Platforms saved: ${totalSaved}`;
   }
 
   /**

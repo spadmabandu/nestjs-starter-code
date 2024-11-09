@@ -66,6 +66,19 @@ export class CompaniesService {
     return this.companyRepository.find();
   }
 
+  async findFieldsBy<T extends keyof Company>(
+    fields: T[],
+    where?: Partial<Record<keyof Company, any>>,
+  ): Promise<Pick<Company, T>[]> {
+    console.log(`in find fields by`);
+    console.log(fields);
+    console.log(where);
+    return this.companyRepository.find({
+      select: fields,
+      where,
+    });
+  }
+
   findOneById(id: number): Promise<Company | null> {
     return this.companyRepository.findOneBy({ id });
   }

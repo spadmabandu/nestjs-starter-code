@@ -21,7 +21,12 @@ export class DataPopulationController {
   }
 
   @Post('companies')
-  populateCompanies() {
+  populateCompanies(): Promise<string> {
     return this.dataPopulationService.populateCompanies();
+  }
+
+  @Post('platforms')
+  populatePlatforms(): Promise<string> {
+    return this.dataPopulationService.populatePlatforms();
   }
 }

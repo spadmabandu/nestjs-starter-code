@@ -6,14 +6,16 @@ import { RatingBoardsModule } from 'src/rating-boards/rating-boards.module';
 import { RatingsModule } from 'src/ratings/ratings.module';
 import { GenresModule } from 'src/genres/genres.module';
 import { CompaniesModule } from 'src/companies/companies.module';
+import { PlatformsModule } from 'src/platforms/platforms.module';
 
 @Module({
   imports: [
     HttpModule,
+    CompaniesModule,
+    GenresModule,
+    PlatformsModule,
     RatingBoardsModule,
     RatingsModule,
-    GenresModule,
-    CompaniesModule,
   ],
   controllers: [DataPopulationController],
   providers: [DataPopulationService],

@@ -1,8 +1,10 @@
+import { Company } from 'src/companies/entities/company.entity';
 import { ExternalSourceEnum } from 'src/shared/types/types';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -13,19 +15,19 @@ export class Platform {
   id: number;
 
   @Column()
-  title: string;
+  name: string;
 
-  @Column({ type: 'text' })
-  description: string;
+  @Column({ type: 'text', nullable: true })
+  description?: string;
 
-  @Column()
-  summary: string;
+  @Column({ nullable: true })
+  summary?: string;
 
-  @Column({ comment: `Common abbreviation for the platform` })
-  abbreviation: string;
+  @Column({ comment: `Common abbreviation for the platform`, nullable: true })
+  abbreviation?: string;
 
-  @Column()
-  releaseDate: Date;
+  @Column({ nullable: true })
+  releaseDate?: Date;
 
   @Column('text', {
     array: true,
@@ -60,11 +62,12 @@ export class Platform {
   })
   externalSource?: ExternalSourceEnum;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt: Date;
 
-  // Many to Many relationship with Company Entity
+  @ManyToOne(() => Company, (company) => company.platforms)
+  company: Company;
 }
