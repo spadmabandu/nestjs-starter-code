@@ -7,7 +7,7 @@ import { CreateVideoGameInput } from './dto/create-video-game.input';
 import { UpdateVideoGameInput } from './dto/update-video-game.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { VideoGame } from './entities/video-game.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CompaniesService } from 'src/companies/companies.service';
 import { GenresService } from 'src/genres/genres.service';
 import { PlatformsService } from 'src/platforms/platforms.service';
@@ -22,7 +22,6 @@ export class VideoGamesService {
     private genresService: GenresService,
     private platformsService: PlatformsService,
     private ratingsService: RatingsService,
-    private dataSource: DataSource,
   ) {}
 
   async create(createVideoGameInput: CreateVideoGameInput) {

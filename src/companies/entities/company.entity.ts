@@ -96,17 +96,17 @@ export class Company {
   @ManyToMany(() => VideoGame, (videoGame) => videoGame.developers, {
     nullable: true,
   })
-  developedVideoGames?: VideoGame[];
+  developedVideoGames?: VideoGame[] | null;
 
   @ManyToMany(() => VideoGame, (videoGame) => videoGame.publishers, {
     nullable: true,
   })
-  publishedVideoGames?: VideoGame[];
+  publishedVideoGames?: VideoGame[] | null;
 
   @OneToMany(() => Platform, (platform) => platform.company, {
     nullable: true,
     onDelete: 'CASCADE',
     cascade: true,
   })
-  platforms?: Platform[];
+  platforms?: Platform[] | null;
 }

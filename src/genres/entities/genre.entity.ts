@@ -58,5 +58,5 @@ export class Genre {
   @ManyToMany(() => VideoGame, (videoGame) => videoGame.genres, {
     nullable: true,
   })
-  videoGames?: VideoGame[];
+  videoGames?: VideoGame[] | null;
 }

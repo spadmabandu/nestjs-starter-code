@@ -60,5 +60,5 @@ export class RatingBoard {
     cascade: true,
     nullable: true,
   })
-  ratings?: Rating[];
+  ratings?: Rating[] | null;
 }

@@ -54,9 +54,8 @@ export class Rating {
   @ManyToOne(() => RatingBoard, (ratingBoard) => ratingBoard.ratings)
   ratingBoard: RatingBoard;
 
-  // Many to Many relationship with Game Entity
   @ManyToMany(() => VideoGame, (videoGame) => videoGame.ratings, {
     nullable: true,
   })
-  videoGames?: VideoGame[];
+  videoGames?: VideoGame[] | null;
 }

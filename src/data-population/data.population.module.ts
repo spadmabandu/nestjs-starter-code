@@ -7,6 +7,7 @@ import { RatingsModule } from 'src/ratings/ratings.module';
 import { GenresModule } from 'src/genres/genres.module';
 import { CompaniesModule } from 'src/companies/companies.module';
 import { PlatformsModule } from 'src/platforms/platforms.module';
+import { VideoGamesModule } from 'src/video-games/video-games.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PlatformsModule } from 'src/platforms/platforms.module';
     PlatformsModule,
     RatingBoardsModule,
     RatingsModule,
+    VideoGamesModule,
   ],
   controllers: [DataPopulationController],
   providers: [DataPopulationService],

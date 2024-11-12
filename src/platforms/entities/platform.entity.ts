@@ -70,11 +70,11 @@ export class Platform {
   @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt: Date;
 
-  @ManyToOne(() => Company, (company) => company.platforms)
-  company: Company;
+  @ManyToOne(() => Company, (company) => company.platforms, { nullable: true })
+  company?: Company | null;
 
   @ManyToMany(() => VideoGame, (videoGame) => videoGame.platforms, {
     nullable: true,
   })
-  videoGames?: VideoGame[];
+  videoGames?: VideoGame[] | null;
 }
