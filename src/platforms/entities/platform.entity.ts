@@ -1,9 +1,11 @@
 import { Company } from 'src/companies/entities/company.entity';
 import { ExternalSourceEnum } from 'src/shared/types/types';
+import { VideoGame } from 'src/video-games/entities/video-game.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -70,4 +72,9 @@ export class Platform {
 
   @ManyToOne(() => Company, (company) => company.platforms)
   company: Company;
+
+  @ManyToMany(() => VideoGame, (videoGame) => videoGame.platforms, {
+    nullable: true,
+  })
+  videoGames?: VideoGame[];
 }

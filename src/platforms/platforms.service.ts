@@ -7,8 +7,9 @@ import { CreatePlatformInput } from './dto/create-platform.input';
 import { UpdatePlatformInput } from './dto/update-platform.input';
 import { Platform } from './entities/platform.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, FindOptionsWhere, In, Repository } from 'typeorm';
 import { CompaniesService } from 'src/companies/companies.service';
+import { FindPlatformsInput } from './dto/find-platforms.input';
 
 @Injectable()
 export class PlatformsService {
@@ -88,6 +89,17 @@ export class PlatformsService {
 
   async findOneById(id: number): Promise<Platform | null> {
     return this.platformRepository.findOneBy({ id });
+  }
+
+  findManyBy(findPlatformsInput: FindPlatformsInput): Promise<Platform[]> {
+    const { ids } = findPlatformsInput;
+    const where: FindOptionsWhere<Platform> = {};
+
+    if (ids) {
+      where.id = In(ids);
+    }
+
+    return this.platformRepository.find({ where });
   }
 
   async update(

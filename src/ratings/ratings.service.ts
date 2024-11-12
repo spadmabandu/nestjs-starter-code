@@ -7,8 +7,9 @@ import { CreateRatingInput } from './dto/create-rating.input';
 import { UpdateRatingInput } from './dto/update-rating.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Rating } from './entities/rating.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, FindOptionsWhere, In, Repository } from 'typeorm';
 import { RatingBoardsService } from 'src/rating-boards/rating-boards.service';
+import { FindRatingsInput } from './dto/find-ratings.input';
 
 @Injectable()
 export class RatingsService {
@@ -98,6 +99,17 @@ export class RatingsService {
 
   async findOneById(id: number): Promise<Rating | null> {
     return this.ratingRepository.findOneBy({ id });
+  }
+
+  findManyBy(findRatingsInput: FindRatingsInput): Promise<Rating[]> {
+    const { ids } = findRatingsInput;
+    const where: FindOptionsWhere<Rating> = {};
+
+    if (ids) {
+      where.id = In(ids);
+    }
+
+    return this.ratingRepository.find({ where });
   }
 
   async update(

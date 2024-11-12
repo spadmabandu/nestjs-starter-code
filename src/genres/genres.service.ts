@@ -8,7 +8,8 @@ import { CreateGenreInput } from './dto/create-genre.input';
 import { UpdateGenreInput } from './dto/update-genre.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Genre } from './entities/genre.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
+import { FindGenresInput } from './dto/find-genres.input';
 
 @Injectable()
 export class GenresService {
@@ -63,12 +64,30 @@ export class GenresService {
     return this.genreRepository.find();
   }
 
+  findByIds(ids: number[]): Promise<Genre[]> {
+    return this.genreRepository.find({
+      where: { id: In(ids) },
+    });
+  }
+
   async findOneById(id: number): Promise<Genre | null> {
     return this.genreRepository.findOneBy({ id });
   }
 
   async findOneByName(name: string): Promise<Genre | null> {
     return this.genreRepository.findOneBy({ name });
+  }
+
+  findManyBy(findGenresInput: FindGenresInput): Promise<Genre[]> {
+    const { ids } = findGenresInput;
+
+    const where: FindOptionsWhere<Genre> = {};
+
+    if (ids) {
+      where.id = In(ids);
+    }
+
+    return this.genreRepository.find({ where });
   }
 
   async update(id: number, updateGenreInput: UpdateGenreInput): Promise<Genre> {

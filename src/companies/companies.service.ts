@@ -8,7 +8,8 @@ import { CreateCompanyInput } from './dto/create-company.input';
 import { UpdateCompanyInput } from './dto/update-company.input';
 import { Company } from './entities/company.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, FindOptionsWhere, In, Repository } from 'typeorm';
+import { FindCompaniesInput } from './dto/find-companies.input';
 
 @Injectable()
 export class CompaniesService {
@@ -66,16 +67,38 @@ export class CompaniesService {
     return this.companyRepository.find();
   }
 
+  async findBy(
+    where?: Partial<Record<keyof Company, any>>,
+  ): Promise<Company[]> {
+    return this.companyRepository.find({
+      where,
+    });
+  }
+
   async findFieldsBy<T extends keyof Company>(
     fields: T[],
     where?: Partial<Record<keyof Company, any>>,
   ): Promise<Pick<Company, T>[]> {
-    console.log(`in find fields by`);
-    console.log(fields);
-    console.log(where);
     return this.companyRepository.find({
       select: fields,
       where,
+    });
+  }
+
+  findManyBy(findCompaniesInput: FindCompaniesInput): Promise<Company[]> {
+    const { ids } = findCompaniesInput;
+    const where: FindOptionsWhere<Company> = {};
+
+    if (ids) {
+      where.id = In(ids);
+    }
+
+    return this.companyRepository.find({ where });
+  }
+
+  findByIds(ids: number[]): Promise<Company[]> {
+    return this.companyRepository.find({
+      where: { id: In(ids) },
     });
   }
 
@@ -101,7 +124,7 @@ export class CompaniesService {
     try {
       return await this.companyRepository.save(company);
     } catch (e) {
-      throw new InternalServerErrorException(`Error updating company`);
+      throw new InternalServerErrorException(`Error updating Company`);
     }
   }
 
@@ -115,7 +138,7 @@ export class CompaniesService {
     try {
       await this.companyRepository.remove(company);
     } catch (e) {
-      throw new InternalServerErrorException(`Error removing company`);
+      throw new InternalServerErrorException(`Error removing Company`);
     }
   }
 }

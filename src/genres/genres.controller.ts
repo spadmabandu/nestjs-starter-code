@@ -11,6 +11,7 @@ import { GenresService } from './genres.service';
 import { CreateGenreInput } from './dto/create-genre.input';
 import { UpdateGenreInput } from './dto/update-genre.input';
 import { Genre } from './entities/genre.entity';
+import { FindGenresInput } from './dto/find-genres.input';
 
 @Controller('genres')
 export class GenresController {
@@ -29,6 +30,11 @@ export class GenresController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Genre | null> {
     return this.genresService.findOneById(+id);
+  }
+
+  @Post('find-many')
+  findMany(@Body() findGenresInput: FindGenresInput) {
+    return this.genresService.findManyBy(findGenresInput);
   }
 
   @Patch(':id')

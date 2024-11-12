@@ -1,9 +1,11 @@
 import { Platform } from 'src/platforms/entities/platform.entity';
 import { ExternalSourceEnum } from 'src/shared/types/types';
+import { VideoGame } from 'src/video-games/entities/video-game.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -91,7 +93,15 @@ export class Company {
   @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt: Date;
 
-  // Many to Many relationship with Game Entity
+  @ManyToMany(() => VideoGame, (videoGame) => videoGame.developers, {
+    nullable: true,
+  })
+  developedVideoGames?: VideoGame[];
+
+  @ManyToMany(() => VideoGame, (videoGame) => videoGame.publishers, {
+    nullable: true,
+  })
+  publishedVideoGames?: VideoGame[];
 
   @OneToMany(() => Platform, (platform) => platform.company, {
     nullable: true,

@@ -1,9 +1,11 @@
 import { RatingBoard } from 'src/rating-boards/entities/rating-board.entity';
 import { ExternalSourceEnum } from 'src/shared/types/types';
+import { VideoGame } from 'src/video-games/entities/video-game.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -53,4 +55,8 @@ export class Rating {
   ratingBoard: RatingBoard;
 
   // Many to Many relationship with Game Entity
+  @ManyToMany(() => VideoGame, (videoGame) => videoGame.ratings, {
+    nullable: true,
+  })
+  videoGames?: VideoGame[];
 }

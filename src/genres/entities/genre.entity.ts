@@ -1,8 +1,10 @@
 import { ExternalSourceEnum } from 'src/shared/types/types';
+import { VideoGame } from 'src/video-games/entities/video-game.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -53,5 +55,8 @@ export class Genre {
   @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt: Date;
 
-  // Many to Many relationship with Game Entity
+  @ManyToMany(() => VideoGame, (videoGame) => videoGame.genres, {
+    nullable: true,
+  })
+  videoGames?: VideoGame[];
 }
