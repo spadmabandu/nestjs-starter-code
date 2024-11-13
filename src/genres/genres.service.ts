@@ -90,6 +90,16 @@ export class GenresService {
     return this.genreRepository.find({ where });
   }
 
+  findFieldsBy<T extends keyof Genre>(
+    fields: T[],
+    where?: Partial<Record<keyof Genre, any>>,
+  ): Promise<Pick<Genre, T>[]> {
+    return this.genreRepository.find({
+      select: fields,
+      where,
+    });
+  }
+
   async update(id: number, updateGenreInput: UpdateGenreInput): Promise<Genre> {
     const genre = await this.findOneById(id);
     if (!genre) {

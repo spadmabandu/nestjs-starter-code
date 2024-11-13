@@ -42,18 +42,18 @@ export class VideoGamesService {
           : Promise.resolve(null),
         publisherIds
           ? this.companiesService.findManyBy({ ids: publisherIds })
-          : null,
+          : Promise.resolve(null),
         genreIds ? this.genresService.findManyBy({ ids: genreIds }) : null,
         platformIds
           ? this.platformsService.findManyBy({
               ids: platformIds,
             })
-          : null,
+          : Promise.resolve(null),
         ratingIds
           ? this.ratingsService.findManyBy({
               ids: ratingIds,
             })
-          : null,
+          : Promise.resolve(null),
       ]);
 
     // Create new Video Game entity

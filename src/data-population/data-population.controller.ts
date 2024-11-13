@@ -29,4 +29,9 @@ export class DataPopulationController {
   populatePlatforms(): Promise<string> {
     return this.dataPopulationService.populatePlatforms();
   }
+
+  @Post('video-games')
+  populateVideoGames(): Promise<string> {
+    return this.dataPopulationService.populateVideoGames();
+  }
 }

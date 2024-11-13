@@ -75,7 +75,7 @@ export class CompaniesService {
     });
   }
 
-  async findFieldsBy<T extends keyof Company>(
+  findFieldsBy<T extends keyof Company>(
     fields: T[],
     where?: Partial<Record<keyof Company, any>>,
   ): Promise<Pick<Company, T>[]> {

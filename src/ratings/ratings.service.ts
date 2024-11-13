@@ -112,6 +112,16 @@ export class RatingsService {
     return this.ratingRepository.find({ where });
   }
 
+  findFieldsBy<T extends keyof Rating>(
+    fields: T[],
+    where?: Partial<Record<keyof Rating, any>>,
+  ): Promise<Pick<Rating, T>[]> {
+    return this.ratingRepository.find({
+      select: fields,
+      where,
+    });
+  }
+
   async update(
     id: number,
     updateRatingInput: UpdateRatingInput,

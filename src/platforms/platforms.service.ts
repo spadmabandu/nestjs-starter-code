@@ -102,6 +102,16 @@ export class PlatformsService {
     return this.platformRepository.find({ where });
   }
 
+  findFieldsBy<T extends keyof Platform>(
+    fields: T[],
+    where?: Partial<Record<keyof Platform, any>>,
+  ): Promise<Pick<Platform, T>[]> {
+    return this.platformRepository.find({
+      select: fields,
+      where,
+    });
+  }
+
   async update(
     id: number,
     updatePlatformInput: UpdatePlatformInput,
